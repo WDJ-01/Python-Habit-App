@@ -19,31 +19,25 @@ class TestStorage(unittest.TestCase):
 
     def test_init_db(self):
         """Test that the database is properly initialized with tables"""
-        conn = sqlite3.connect(DB_NAME)
-        try:
+        with sqlite3.connect(DB_NAME) as conn:
             c = conn.cursor()
             c.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [row[0] for row in c.fetchall()]
             self.assertIn('habits', tables)
             self.assertIn('completions', tables)
-        finally:
-            conn.close()
 
     def test_add_habit(self):
         """Test adding a habit to the database"""
         habit = Habit("Test Habit", "daily")
         add_habit(habit)
         
-        conn = sqlite3.connect(DB_NAME)
-        try:
+        with sqlite3.connect(DB_NAME) as conn:
             c = conn.cursor()
             c.execute("SELECT name, periodicity FROM habits WHERE name = ?", (habit.name,))
             result = c.fetchone()
             self.assertIsNotNone(result)
             self.assertEqual(result[0], "Test Habit")
             self.assertEqual(result[1], "daily")
-        finally:
-            conn.close()
 
     def test_complete_task(self):
         """Test completing a task for a habit"""
@@ -52,16 +46,13 @@ class TestStorage(unittest.TestCase):
         
         complete_task(habit.name)
         
-        conn = sqlite3.connect(DB_NAME)
-        try:
+        with sqlite3.connect(DB_NAME) as conn:
             c = conn.cursor()
             c.execute("SELECT completed_at FROM completions WHERE habit_name = ?", (habit.name,))
             result = c.fetchone()
             self.assertIsNotNone(result)
             completion_time = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S")
             self.assertLess((datetime.now() - completion_time).total_seconds(), 5)
-        finally:
-            conn.close()
 
     def test_get_all_habits(self):
         """Test retrieving all habits"""
@@ -103,16 +94,13 @@ class TestStorage(unittest.TestCase):
         success = delete_habit(habit.name)
         self.assertTrue(success)
         
-        conn = sqlite3.connect(DB_NAME)
-        try:
+        with sqlite3.connect(DB_NAME) as conn:
             c = conn.cursor()
             c.execute("SELECT name FROM habits WHERE name = ?", (habit.name,))
             self.assertIsNone(c.fetchone())
             
             c.execute("SELECT completed_at FROM completions WHERE habit_name = ?", (habit.name,))
             self.assertIsNone(c.fetchone())
-        finally:
-            conn.close()
 
     def test_delete_nonexistent_habit(self):
         """Test deleting a habit that doesn't exist"""

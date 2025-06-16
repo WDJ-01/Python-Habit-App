@@ -67,12 +67,15 @@ pip install -r requirements.txt
 
 ```bash 
 # Run directly with Python locally on device in terminal
-python main.py
+python3 main.py
 
 # Or use the executable, after running executable commands -> see Building Executables
 ./dist/main  # On macOS
 dist/main.exe  # On Windows
 ```
+### Load Predefined Tasks
+
+- To load predefined tasks, select option 7 from the menu
 
 ### Basic Commands
 
@@ -126,7 +129,7 @@ python-habit-app/
 Run the test suite using:
 
 ```bash
-python -m unittest discover
+python3 -m unittest discover
 ```
 
 ## Acknowledgments
